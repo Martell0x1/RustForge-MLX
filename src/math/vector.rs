@@ -1,26 +1,20 @@
-use std::ops::{Add , Div , Mul , Sub};
+use std::ops::{Add, Div, Mul, Sub};
 #[derive(Debug, Clone, PartialEq)]
 pub struct Vector<T> {
     data: Vec<T>,
 }
 
-
 impl<T> Add for Vector<T>
-where 
+where
     T: Add<Output = T>,
-    {
-        type Output = Self;
+{
+    type Output = Self;
 
-        fn add(self,other:Self) -> Self {
-            assert_eq!(self.len(), other.len());
-            Self::new(
-            self.data
-                .into_iter()
-                .zip(other.data)
-                .map(|(a, b)| a + b),
-            )
-        }
+    fn add(self, other: Self) -> Self {
+        assert_eq!(self.len(), other.len());
+        Self::new(self.data.into_iter().zip(other.data).map(|(a, b)| a + b))
     }
+}
 
 impl<T> Sub for Vector<T>
 where
@@ -31,12 +25,7 @@ where
     fn sub(self, other: Self) -> Self {
         assert_eq!(self.len(), other.len());
 
-        Self::new(
-            self.data
-                .into_iter()
-                .zip(other.data)
-                .map(|(a, b)| a - b),
-        )
+        Self::new(self.data.into_iter().zip(other.data).map(|(a, b)| a - b))
     }
 }
 
@@ -49,12 +38,7 @@ where
     fn mul(self, other: Self) -> Self {
         assert_eq!(self.len(), other.len());
 
-        Self::new(
-            self.data
-                .into_iter()
-                .zip(other.data)
-                .map(|(a, b)| a * b),
-        )
+        Self::new(self.data.into_iter().zip(other.data).map(|(a, b)| a * b))
     }
 }
 impl<T> Div for Vector<T>
@@ -66,12 +50,7 @@ where
     fn div(self, other: Self) -> Self {
         assert_eq!(self.len(), other.len());
 
-        Self::new(
-            self.data
-                .into_iter()
-                .zip(other.data)
-                .map(|(a, b)| a / b),
-        )
+        Self::new(self.data.into_iter().zip(other.data).map(|(a, b)| a / b))
     }
 }
 
@@ -82,11 +61,7 @@ where
     type Output = Self;
 
     fn mul(self, scalar: T) -> Self {
-        Self::new(
-            self.data
-                .into_iter()
-                .map(|x| x * scalar),
-        )
+        Self::new(self.data.into_iter().map(|x| x * scalar))
     }
 }
 
@@ -100,22 +75,25 @@ impl<T> Vector<T> {
         }
     }
 
-    pub fn zeros(n: usize) -> Self 
-    where T: Default + Clone,
+    pub fn zeros(n: usize) -> Self
+    where
+        T: Default + Clone,
     {
         Self {
-            data: vec![T::default();n]
+            data: vec![T::default(); n],
         }
     }
 
-    pub fn get(&self,idx: usize) -> Option<T>
-    where T: Default + Copy ,
+    pub fn get(&self, idx: usize) -> Option<T>
+    where
+        T: Default + Copy,
     {
         self.data.get(idx).copied()
     }
 
-    pub fn set(&mut self,idx: usize,val:T)
-    where T: Default + Clone
+    pub fn set(&mut self, idx: usize, val: T)
+    where
+        T: Default + Clone,
     {
         if idx >= 0 && idx < self.len() {
             self.data[idx] = val;
@@ -123,10 +101,11 @@ impl<T> Vector<T> {
     }
 
     pub fn ones(n: usize) -> Self
-    where T: From<u8> + Clone,
+    where
+        T: From<u8> + Clone,
     {
         Self {
-            data: vec![T::from(1u8);n],
+            data: vec![T::from(1u8); n],
         }
     }
 
@@ -161,7 +140,7 @@ impl<T> Vector<T> {
     pub fn into_vec(self) -> Vec<T> {
         self.data
     }
-    
+
     pub fn dot(&self, other: &Self) -> T
     where
         T: Mul<Output = T> + Add<Output = T> + Default + Copy,
@@ -197,14 +176,10 @@ impl<T> Vector<T> {
 
         assert!(norm != 0.0, "Cannot normalize a zero vector");
 
-        Vector::new(
-            self.data
-                .iter()
-                .map(|&x| {
-                    let x: f64 = x.into();
-                    x / norm
-                }),
-        )
+        Vector::new(self.data.iter().map(|&x| {
+            let x: f64 = x.into();
+            x / norm
+        }))
     }
 
     pub fn distance(&self, other: &Self) -> f64
@@ -243,11 +218,7 @@ impl<T> Vector<T> {
     {
         assert!(!self.is_empty(), "Cannot calculate mean of empty vector");
 
-        self.data
-            .iter()
-            .map(|&x| x.into())
-            .sum::<f64>()
-            / self.len() as f64
+        self.data.iter().map(|&x| x.into()).sum::<f64>() / self.len() as f64
     }
 
     pub fn min(&self) -> Option<&T>
@@ -300,11 +271,6 @@ impl<T> Vector<T> {
     {
         assert_eq!(self.len(), other.len(), "Vector dimensions must match");
 
-        Vector::new(
-            self.data
-                .iter()
-                .cloned()
-                .zip(other.data.iter().cloned()),
-        )
+        Vector::new(self.data.iter().cloned().zip(other.data.iter().cloned()))
     }
 }

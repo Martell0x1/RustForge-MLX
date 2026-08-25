@@ -1,3 +1,4 @@
+use crate::math::vector::Vector;
 use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -87,6 +88,16 @@ impl<T> Matrix<T> {
         }
     }
 
+    pub fn from_vector(vector: Vector<T>) -> Self
+    where
+        T: Clone,
+    {
+        let vec_data = Vector::into_vec(vector);
+        Self {
+            data: vec_data.into_iter().map(|x| vec![x]).collect(),
+        }
+    }
+
     pub fn row(&self, index: usize) -> Option<Vec<T>>
     where
         T: Clone,
@@ -102,12 +113,7 @@ impl<T> Matrix<T> {
             return None;
         }
 
-        Some(
-            self.data
-                .iter()
-                .map(|row| row[index].clone())
-                .collect(),
-        )
+        Some(self.data.iter().map(|row| row[index].clone()).collect())
     }
     pub fn diagonal(&self) -> Vec<T>
     where
@@ -115,9 +121,7 @@ impl<T> Matrix<T> {
     {
         let size = self.rows().min(self.cols());
 
-        (0..size)
-            .map(|i| self.data[i][i].clone())
-            .collect()
+        (0..size).map(|i| self.data[i][i].clone()).collect()
     }
 }
 
@@ -168,22 +172,13 @@ where
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        assert_eq!(
-            self.shape(),
-            other.shape(),
-            "Matrix dimensions must match"
-        );
+        assert_eq!(self.shape(), other.shape(), "Matrix dimensions must match");
 
         Self::new(
             self.data
                 .into_iter()
                 .zip(other.data)
-                .map(|(row_a, row_b)| {
-                    row_a
-                        .into_iter()
-                        .zip(row_b)
-                        .map(|(a, b)| a + b)
-                }),
+                .map(|(row_a, row_b)| row_a.into_iter().zip(row_b).map(|(a, b)| a + b)),
         )
     }
 }
@@ -195,22 +190,13 @@ where
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        assert_eq!(
-            self.shape(),
-            other.shape(),
-            "Matrix dimensions must match"
-        );
+        assert_eq!(self.shape(), other.shape(), "Matrix dimensions must match");
 
         Self::new(
             self.data
                 .into_iter()
                 .zip(other.data)
-                .map(|(row_a, row_b)| {
-                    row_a
-                        .into_iter()
-                        .zip(row_b)
-                        .map(|(a, b)| a - b)
-                }),
+                .map(|(row_a, row_b)| row_a.into_iter().zip(row_b).map(|(a, b)| a - b)),
         )
     }
 }
@@ -233,7 +219,7 @@ where
 
         let rows = self.rows();
         let cols = other.cols();
-        let mut result = Self::zeros(rows,cols);
+        let mut result = Self::zeros(rows, cols);
 
         for i in 0..rows {
             for j in 0..cols {
@@ -245,7 +231,6 @@ where
             }
         }
         result
-
     }
 }
 impl<T> Div for Matrix<T>
@@ -256,22 +241,13 @@ where
 
     /// Element-wise division.
     fn div(self, other: Self) -> Self {
-        assert_eq!(
-            self.shape(),
-            other.shape(),
-            "Matrix dimensions must match"
-        );
+        assert_eq!(self.shape(), other.shape(), "Matrix dimensions must match");
 
         Self::new(
             self.data
                 .into_iter()
                 .zip(other.data)
-                .map(|(row_a, row_b)| {
-                    row_a
-                        .into_iter()
-                        .zip(row_b)
-                        .map(|(a, b)| a / b)
-                }),
+                .map(|(row_a, row_b)| row_a.into_iter().zip(row_b).map(|(a, b)| a / b)),
         )
     }
 }
@@ -288,9 +264,9 @@ where
 
     fn mul(self, scalar: T) -> Self {
         Self::new(
-            self.data.into_iter().map(|row| {
-                row.into_iter().map(|x| x * scalar)
-            }),
+            self.data
+                .into_iter()
+                .map(|row| row.into_iter().map(|x| x * scalar)),
         )
     }
 }
@@ -303,9 +279,9 @@ where
 
     fn div(self, scalar: T) -> Self {
         Self::new(
-            self.data.into_iter().map(|row| {
-                row.into_iter().map(|x| x / scalar)
-            }),
+            self.data
+                .into_iter()
+                .map(|row| row.into_iter().map(|x| x / scalar)),
         )
     }
 }
@@ -315,7 +291,6 @@ where
 /* -------------------------------------------------------------------------- */
 
 impl<T> Matrix<T> {
-
     /// Transpose the matrix.
     pub fn transpose(&self) -> Self
     where
@@ -325,10 +300,8 @@ impl<T> Matrix<T> {
             return Self::new(Vec::<Vec<T>>::new());
         }
         Self::new(
-            (0..self.cols()).map(|col| {
-                (0..self.rows())
-                    .map(move |row| self.data[row][col].clone())
-            }),
+            (0..self.cols())
+                .map(|col| (0..self.rows()).map(move |row| self.data[row][col].clone())),
         )
     }
 
@@ -360,11 +333,7 @@ impl<T> Matrix<T> {
     where
         T: Add<Output = T> + Default + Copy,
     {
-        assert_eq!(
-            self.rows(),
-            self.cols(),
-            "Trace requires a square matrix"
-        );
+        assert_eq!(self.rows(), self.cols(), "Trace requires a square matrix");
 
         self.diagonal()
             .into_iter()
@@ -432,13 +401,9 @@ impl<T> Matrix<T> {
             .flat_map(|(row_idx, row)| {
                 row.iter()
                     .enumerate()
-                    .map(move |(col_idx, value)| {
-                        (row_idx, col_idx, value)
-                    })
+                    .map(move |(col_idx, value)| (row_idx, col_idx, value))
             })
-            .min_by(|(_, _, a), (_, _, b)| {
-                a.partial_cmp(b).unwrap()
-            })
+            .min_by(|(_, _, a), (_, _, b)| a.partial_cmp(b).unwrap())
             .map(|(row, col, _)| (row, col))
     }
 
@@ -452,13 +417,9 @@ impl<T> Matrix<T> {
             .flat_map(|(row_idx, row)| {
                 row.iter()
                     .enumerate()
-                    .map(move |(col_idx, value)| {
-                        (row_idx, col_idx, value)
-                    })
+                    .map(move |(col_idx, value)| (row_idx, col_idx, value))
             })
-            .max_by(|(_, _, a), (_, _, b)| {
-                a.partial_cmp(b).unwrap()
-            })
+            .max_by(|(_, _, a), (_, _, b)| a.partial_cmp(b).unwrap())
             .map(|(row, col, _)| (row, col))
     }
 }
@@ -472,12 +433,9 @@ impl<T> Matrix<T> {
     where
         T: Add<Output = T> + Default + Copy,
     {
-        self.data.get(row).map(|values| {
-            values
-                .iter()
-                .copied()
-                .fold(T::default(), |acc, x| acc + x)
-        })
+        self.data
+            .get(row)
+            .map(|values| values.iter().copied().fold(T::default(), |acc, x| acc + x))
     }
 
     pub fn column_sum(&self, col: usize) -> Option<T>
@@ -506,13 +464,7 @@ impl<T> Matrix<T> {
             return None;
         }
 
-        Some(
-            values
-                .iter()
-                .map(|&x| x.into())
-                .sum::<f64>()
-                / values.len() as f64,
-        )
+        Some(values.iter().map(|&x| x.into()).sum::<f64>() / values.len() as f64)
     }
 
     pub fn column_mean(&self, col: usize) -> Option<f64>
@@ -523,13 +475,7 @@ impl<T> Matrix<T> {
             return None;
         }
 
-        Some(
-            self.data
-                .iter()
-                .map(|row| row[col].into())
-                .sum::<f64>()
-                / self.rows() as f64,
-        )
+        Some(self.data.iter().map(|row| row[col].into()).sum::<f64>() / self.rows() as f64)
     }
 }
 
@@ -561,10 +507,7 @@ impl<T> Matrix<T> {
     {
         let norm = self.norm();
 
-        assert!(
-            norm != 0.0,
-            "Cannot normalize a zero matrix"
-        );
+        assert!(norm != 0.0, "Cannot normalize a zero matrix");
 
         self.map(|x| {
             let x: f64 = (*x).into();

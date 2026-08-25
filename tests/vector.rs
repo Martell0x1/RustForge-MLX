@@ -66,20 +66,19 @@ fn vector_can_be_empty() {
 }
 
 #[test]
-fn vector_get_element(){
+fn vector_get_element() {
     let vector = Vector::<i32>::new(1..3); // 1 2 3
     let second = vector.get(1);
-    assert_eq!(second,Some(2));
+    assert_eq!(second, Some(2));
 }
 
 #[test]
-fn vector_can_set_items(){
-    let mut vector = Vector::<i64>::new(vec![1,2,4]);
+fn vector_can_set_items() {
+    let mut vector = Vector::<i64>::new(vec![1, 2, 4]);
     vector.set(2, 3);
     dbg!(&vector);
 
-    assert_eq!(vector.get(2),Some(3));
-
+    assert_eq!(vector.get(2), Some(3));
 }
 
 #[test]
