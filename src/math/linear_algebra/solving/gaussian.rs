@@ -1,8 +1,8 @@
 //! Gaussian elimination with partial pivoting.
 
-use super::{
-    LinearAlgebraError, augment, back_substitution, find_pivot_row, is_effectively_zero,
-    validate_linear_system, zero_pivot_error,
+use super::{LinearAlgebraError, augment, zero_pivot_error};
+use crate::math::linear_algebra::common::{
+    back_substitution, find_pivot_row, is_effectively_zero, validate_linear_system,
 };
 use crate::math::matrix::Matrix;
 use crate::math::vector::Vector;
@@ -31,7 +31,7 @@ use crate::math::vector::Vector;
 ///
 /// # Numerical notes
 ///
-/// Pivots with absolute value smaller than [`super::EPSILON`] are treated as zero.
+/// Pivots with absolute value smaller than [`crate::math::linear_algebra::EPSILON`] are treated as zero.
 /// Ill-conditioned matrices may still produce inaccurate solutions even when a
 /// unique solution exists mathematically.
 pub fn gaussian_solve(a: &Matrix<f64>, b: &Vector<f64>) -> Result<Vector<f64>, LinearAlgebraError> {

@@ -1,8 +1,8 @@
 //! Gauss–Jordan elimination with partial pivoting.
 
-use super::{
-    LinearAlgebraError, augment, find_pivot_row, is_effectively_zero, validate_linear_system,
-    zero_pivot_error,
+use super::{LinearAlgebraError, augment, zero_pivot_error};
+use crate::math::linear_algebra::common::{
+    find_pivot_row, is_effectively_zero, validate_linear_system,
 };
 use crate::math::matrix::Matrix;
 use crate::math::vector::Vector;
@@ -31,7 +31,7 @@ use crate::math::vector::Vector;
 ///
 /// # Numerical notes
 ///
-/// Pivots with absolute value smaller than [`super::EPSILON`] are treated as zero.
+/// Pivots with absolute value smaller than [`crate::math::linear_algebra::EPSILON`] are treated as zero.
 /// Scaling each pivot row to 1 can amplify rounding error on ill-conditioned systems.
 pub fn gauss_jordan_solve(
     a: &Matrix<f64>,

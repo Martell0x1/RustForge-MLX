@@ -1,8 +1,11 @@
+use rustforge_mlx::math::linear_algebra::decomposition::{
+    CholeskyDecomposition, LUDecomposition, QRDecomposition, cholesky_decompose, lu_decompose,
+    qr_decompose,
+};
 use rustforge_mlx::math::linear_algebra::operations;
 use rustforge_mlx::math::linear_algebra::solving::{
-    CholeskyDecomposition, LUDecomposition, LinearAlgebraError, QRDecomposition,
-    cholesky_decompose, cholesky_solve, gauss_jordan_solve, gaussian_solve, lu_decompose, lu_solve,
-    qr_decompose, qr_solve,
+    LinearAlgebraError, cholesky_solve, gauss_jordan_solve, gaussian_solve, lu_solve, qr_solve,
+    solve_cholesky, solve_lu, solve_qr,
 };
 use rustforge_mlx::math::matrix::Matrix;
 use rustforge_mlx::math::vector::Vector;
@@ -306,11 +309,11 @@ fn lu_solves_ax_equals_b() {
 #[test]
 fn lu_solves_3x3_and_pivoting_system() {
     let (a, b) = system_3x3();
-    let x = lu_decompose(&a).unwrap().solve(&b).unwrap();
+    let x = solve_lu(&a, &b).unwrap();
     assert_residual(&a, &x, &b);
 
     let (a, b) = needs_row_swap();
-    let x = lu_decompose(&a).unwrap().solve(&b).unwrap();
+    let x = solve_lu(&a, &b).unwrap();
     assert_vectors_close(&x, &Vector::new(vec![2.0, 1.0, 0.0]));
     assert_residual(&a, &x, &b);
 }
@@ -341,8 +344,8 @@ fn all_solvers_agree_on_the_same_system() {
 
     let x_ge = gaussian_solve(&a, &b).unwrap();
     let x_gj = gauss_jordan_solve(&a, &b).unwrap();
-    let x_lu = lu_decompose(&a).unwrap().solve(&b).unwrap();
-    let x_qr = qr_decompose(&a).unwrap().solve(&b).unwrap();
+    let x_lu = solve_lu(&a, &b).unwrap();
+    let x_qr = solve_qr(&a, &b).unwrap();
 
     assert_vectors_close(&x_ge, &x_gj);
     assert_vectors_close(&x_ge, &x_lu);
@@ -392,7 +395,7 @@ fn qr_handles_leading_zero_without_row_swaps() {
     assert_upper_triangular(decomposition.r());
     assert_a_equals_qr(&a, &decomposition);
 
-    let x = decomposition.solve(&b).unwrap();
+    let x = qr_solve(&decomposition, &b).unwrap();
     assert_vectors_close(&x, &Vector::new(vec![2.0, 1.0, 0.0]));
     assert_residual(&a, &x, &b);
 }
@@ -422,7 +425,7 @@ fn qr_solves_simple_2x2() {
 #[test]
 fn qr_solves_3x3() {
     let (a, b) = system_3x3();
-    let x = qr_decompose(&a).unwrap().solve(&b).unwrap();
+    let x = solve_qr(&a, &b).unwrap();
 
     assert_vectors_close(&x, &Vector::new(vec![2.0, 3.0, -1.0]));
     assert_residual(&a, &x, &b);
@@ -552,7 +555,7 @@ fn cholesky_solves_simple_2x2() {
 #[test]
 fn cholesky_solves_3x3() {
     let (a, b) = spd_3x3();
-    let x = cholesky_decompose(&a).unwrap().solve(&b).unwrap();
+    let x = solve_cholesky(&a, &b).unwrap();
     assert_residual(&a, &x, &b);
 }
 

@@ -1,5 +1,5 @@
 use crate::math::vector::Vector;
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Div, Index, IndexMut, Mul, Sub};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Matrix<T> {
@@ -513,5 +513,19 @@ impl<T> Matrix<T> {
             let x: f64 = (*x).into();
             x / norm
         })
+    }
+}
+
+impl<T> Index<usize> for Matrix<T> {
+    type Output = [T];
+
+    fn index(&self, row: usize) -> &Self::Output {
+        &self.data[row]
+    }
+}
+
+impl<T> IndexMut<usize> for Matrix<T> {
+    fn index_mut(&mut self, row: usize) -> &mut Self::Output {
+        &mut self.data[row]
     }
 }
