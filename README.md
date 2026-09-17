@@ -553,7 +553,9 @@ For larger proposals, please describe:
 
 ## Where to Start
 
-If you're new to the project, good places to start are:
+If you're new to the project, check out the **[Getting Started Guide](docs/getting-started.md)** to set up your environment, build the project, and run your first example.
+
+Good places to contribute are:
 
 * Documentation improvements
 * Tests for existing functionality
